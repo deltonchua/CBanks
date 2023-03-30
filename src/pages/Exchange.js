@@ -1,0 +1,49 @@
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectExchangeProfile,
+  selectLoading,
+  fetchExchangeProfile,
+  fetchExchangeChart,
+  fetchExchangeTickers,
+  resetDetails,
+  setLoading,
+} from '../features/exchange/exchangeSlice';
+import ExchangeProfile from '../components/exchange/ExchangeProfile';
+import ExchangeMarketData from '../components/exchange/ExchangeMarketData';
+import Loader from '../components/utils/Loader';
+import NotFound from '../components/utils/NotFound';
+
+const Exchange = () => {
+  const params = useParams();
+  const id = params.id;
+  const profile = useSelector(selectExchangeProfile);
+  const loading = useSelector(selectLoading);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    dispatch(resetDetails());
+    dispatch(setLoading(true));
+    dispatch(fetchExchangeProfile(id));
+    dispatch(fetchExchangeChart(id, '365'));
+    dispatch(fetchExchangeTickers(id));
+    // eslint-disable-next-line
+  }, [id]);
+
+  if (loading) return <Loader />;
+
+  if (profile === null) return <NotFound />;
+
+  return (
+    <div className='main-content-container'>
+      <div className='details'>
+        <ExchangeProfile />
+        <ExchangeMarketData exchange_id={id} />
+      </div>
+    </div>
+  );
+};
+
+export default Exchange;
